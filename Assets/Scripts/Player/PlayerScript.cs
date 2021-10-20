@@ -5,17 +5,11 @@ using UnityEngine.SceneManagement;
 
 public class PlayerScript : MonoBehaviour
 {
-    [SerializeField]
-    private GameObject spear;
-    private Rigidbody2D playerBody;
+    
     private Animator anim;
-    private float speed = 10f;
-    private float maxVelocity = 4f;
-
-    private bool canShoot = true;
 
     [SerializeField] 
-    private AudioSource failSound, shootSound;
+    private AudioSource failSound;
     
     // Start is called before the first frame update
     void Start()
@@ -23,62 +17,20 @@ public class PlayerScript : MonoBehaviour
         initVariables();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        StartCoroutine("shoot");
-    }
-
     void FixedUpdate(){
-        playerWalk();
+        
     }
 
     void initVariables(){
-        playerBody = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
     }
 
-    IEnumerator shoot(){
-        if(Input.GetMouseButtonDown(0) && canShoot){
-            canShoot = false;
-            shootSound.Play();
-            Vector3 tempPosition = transform.position;
-            tempPosition.y += 1.5f;
-            Instantiate(spear,tempPosition,transform.rotation);
-            yield return new WaitForSeconds(0.5f);
-            canShoot = true;
-        }
-        
-    }
-    
-    void playerWalk(){
-        var force = 0f;
-        var velocity = Mathf.Abs(playerBody.velocity.x);
-
-        float h = Input.GetAxis("Horizontal");
-        if(h > 0){
-            // moving right
-            if(velocity < maxVelocity){
-                force = speed;
-            }
-            Vector3 scale = transform.localScale;
-            scale.x = 0.4f; // face right
-            transform.localScale = scale;
-        }
-        else if(h < 0){
-            // moving left
-            if(velocity < maxVelocity){
-                force = -speed;
-            }
-            Vector3 scale = transform.localScale;
-            scale.x = -0.4f; // face left
-            transform.localScale = scale;
-        }
-        playerBody.AddForce(new Vector2(force,0));
+    public void playSound(AudioSource sound){
+        sound.Play();
     }
 
     IEnumerator DieAndRestart(){
-        failSound.Play();
+        playSound(failSound);
         transform.position = new Vector3(0,500,0);
         yield return new WaitForSeconds(1f);
         SceneManager.LoadScene(0);
