@@ -7,31 +7,26 @@ public class SpearScript : MonoBehaviour
     private Rigidbody2D spearBody;
     private float speed = 5f;
 
-    void initVariables(){
+    void Awake()
+    {
         spearBody = GetComponent<Rigidbody2D>();
     }
-    // Start is called before the first frame update
-    void Start()
-    {
-        initVariables();
-    }
 
-    // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        
-    }
-
-    void FixedUpdate(){
-        //Debug.Log(spearBody.velocity.y);
         spearBody.velocity = new Vector2(0,speed);
     }
 
-    void OnTriggerEnter2D(Collider2D target){
-        if(target.tag == "Top"){
-            Destroy(gameObject);
+    void OnTriggerEnter2D(Collider2D target)
+    {
+        if(target.tag == "Top")
+        {
+            // spear destroyed above the screen
+            // in order to save memory
+            Destroy(gameObject); 
         }
-        if(target.tag.Contains("Ball")){
+        if(target.tag.Contains("Ball"))
+        {
             Destroy(gameObject);
         }
     }

@@ -17,56 +17,72 @@ public class PlayerController : MonoBehaviour
     private float speed = 10;
     private GameObject player;
 
-void Awake(){
-    pangInput = new PangInput();
-}
+    void Awake()
+    {
+        pangInput = new PangInput();
+        rb = GetComponent<Rigidbody2D>();
+    }
     // Start is called before the first frame update
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        pangInput.Player.Fire.performed += ctx => {
+        CreateShootCallback();
+    }
+
+    // dealing with 'Fire' input event (shoot a spear & play a sound)
+    private void CreateShootCallback()
+    {
+        pangInput.Player.Fire.performed += ctx => { 
             StartCoroutine("Shoot");
             shootSound.Play();
         };
     }
 
-
-    IEnumerator Shoot(){
-        if(canShoot){
+    private IEnumerator Shoot()
+    {
+        if(canShoot)
+        {
+            // spawn a spear
             canShoot = false;
             Vector3 tempPosition = transform.position;
             tempPosition.y += 1.5f;
             Instantiate(spear,tempPosition,transform.rotation);
-            yield return new WaitForSeconds(0.5f);
+            // this prevents from continuous shooting
+            yield return new WaitForSeconds(0.5f); 
             canShoot = true;
         }
     }
 
-    void OnEnable(){
+    private void OnEnable()
+    {
         pangInput.Enable();
     }
-    void OnDisable(){
+    private void OnDisable()
+    {
         pangInput.Disable();
     }
 
-    void OnMove(InputValue movementValue){
+    // dealing with 'Move' input event (we only need the x axis)
+    private void OnMove(InputValue movementValue)
+    {
         Vector2 movementVector = movementValue.Get<Vector2>();
         movementX = movementVector.x;
         
-        if(movementX > 0){
+        if(movementX > 0)
+        {
             Vector3 scale = transform.localScale;
             scale.x = 0.4f; // face right
             transform.localScale = scale;
         }
-        else if(movementX < 0){
+        else if(movementX < 0)
+        {
             Vector3 scale = transform.localScale;
             scale.x = -0.4f; // face left
             transform.localScale = scale;
         }
     }
 
-    // Update is called once per frame
-    void FixedUpdate()
+    // actually move the player
+    private void FixedUpdate()
     {
         Vector3 movement = new Vector3(movementX,0,0);
         rb.AddForce(movement * speed);

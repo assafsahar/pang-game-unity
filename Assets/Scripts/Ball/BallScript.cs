@@ -16,28 +16,20 @@ public class BallScript : MonoBehaviour
     private GameObject ball1, ball2;
 
     private BallScript ballScript1, ballScript2;
-    // Start is called before the first frame update
-    void Start()
+
+    private void Awake()
     {
-        initVariables();
+        ballBody = GetComponent<Rigidbody2D>();
         SetBallSpeed();
     }
 
-    void initVariables(){
-        ballBody = GetComponent<Rigidbody2D>();
-    }
-
-    // Update is called once per frame
-    void Update()
+    private void FixedUpdate()
     {
-        
+        MoveBall();
     }
 
-    void FixedUpdate(){
-        moveBall();
-    }
-
-    void moveBall(){
+    private void MoveBall()
+    {
         if(moveLeft){
             Vector3 tempPosition = transform.position;
             tempPosition.x -= forceX * Time.deltaTime;
@@ -50,10 +42,13 @@ public class BallScript : MonoBehaviour
         }
     }
 
-    void SetBallSpeed(){
+    private void SetBallSpeed()
+    {
         forceX = 2.5f;
-// Debug.Log("tag="+this.gameObject.tag);
-        switch(this.gameObject.tag){
+        // each ball prefab has a different tag
+        // tha affects its forceY
+        switch(this.gameObject.tag)
+        {
             case "BallBig":
             forceY = 11f;
             break;
@@ -69,26 +64,38 @@ public class BallScript : MonoBehaviour
         }
     }
 
-    void OnTriggerEnter2D(Collider2D target){
-        if(target.tag == "Ground"){
+    private void OnTriggerEnter2D(Collider2D target)
+    {
+        // colliding with the ground make it bounce up
+        if(target.tag == "Ground")
+        {
             ballBody.velocity = new Vector2(0,forceY);
         }
-        if(target.tag == "RightWall"){
+        // colliding with the right wall make it go left
+        if(target.tag == "RightWall")
+        {
             SetMoveLeft(true);
         }
-        if(target.tag == "LeftWall"){
+        // colliding with the left wall make it go right
+        if(target.tag == "LeftWall")
+        {
             SetMoveRight(true);
         }
-        if(target.tag == "Spear"){
-           InstantiateNewBalls();
-        //    Destroy(gameObject); 
-            
+        // colliding with a spear make it disappear
+        if(target.tag == "Spear")
+        {
+            InstantiateNewBalls();
             gameObject.SetActive(false);
         }
     }
 
-    void InstantiateNewBalls(){
-        if(this.tag != "BallTiny"){
+    private void InstantiateNewBalls()
+    {
+        // except for the smallest ball
+        // all others spawn 2 smaller balls
+        // after colliding with a spear
+        if(this.tag != "BallTiny")
+        {
             ball1 = Instantiate(originalBall, transform.position, transform.rotation);
             ball1.name = originalBall.name;
             ball1.GetComponent<AudioSource>().Play();
@@ -103,11 +110,13 @@ public class BallScript : MonoBehaviour
         
     }
 
-    public void SetMoveLeft(bool canMoveLeft){
+    private void SetMoveLeft(bool canMoveLeft)
+    {
         this.moveLeft = canMoveLeft;
         this.moveRight = !canMoveLeft;
     }
-    public void SetMoveRight(bool canMoveRight){
+    private void SetMoveRight(bool canMoveRight)
+    {
         this.moveLeft = !canMoveRight;
         this.moveRight = canMoveRight;
     }
